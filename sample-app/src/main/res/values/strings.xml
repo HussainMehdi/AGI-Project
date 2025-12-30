@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Assistant SDK Sample</string>
+    <string name="capture_button">Capture UI</string>
+    <string name="snapshot_title">UI Snapshot</string>
+    <string name="action_test">Test Actions</string>
+    <string name="sample_button">Click Me</string>
+    <string name="sample_edittext_hint">Enter text here</string>
+    <string name="sample_password_hint">Password</string>
+    <string name="action_click">Click Button</string>
+    <string name="action_set_text">Set Text</string>
+    <string name="action_focus">Focus EditText</string>
+    <string name="action_back">Back</string>
+    <string name="action_scroll">Scroll</string>
+</resources>
+
