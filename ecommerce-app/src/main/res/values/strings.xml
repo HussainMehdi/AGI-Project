@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">E-Commerce</string>
+    <string name="search_hint">Search products...</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="cart">Cart</string>
+    <string name="price">Price</string>
+    <string name="description">Description</string>
+    <string name="reviews">Reviews</string>
+    <string name="checkout">Checkout</string>
+    <string name="total">Total</string>
+    <string name="remove">Remove</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;Add iPhone to cart&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+

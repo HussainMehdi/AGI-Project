@@ -17,4 +17,10 @@ dependencyResolutionManagement {
 rootProject.name = "AGI-Project"
 include ':assistant-sdk'
 include ':sample-app'
+include ':ecommerce-app'
+include ':fooddelivery-app'
+include ':ridehailing-app'
+include ':calendar-app'
+include ':marketplace-app'
+include ':lms-app'
 
