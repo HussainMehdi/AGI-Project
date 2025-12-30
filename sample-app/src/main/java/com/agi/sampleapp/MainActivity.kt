@@ -1,6 +1,7 @@
 package com.agi.sampleapp
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,6 +10,7 @@ import com.agi.assistantsdk.models.Action
 import com.agi.sampleapp.databinding.ActivityMainBinding
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -16,6 +18,8 @@ class MainActivity : AppCompatActivity() {
     
     private val sampleItems = (1..20).map { "Item $it" }
     private lateinit var adapter: SampleAdapter
+    
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +48,14 @@ class MainActivity : AppCompatActivity() {
             captureAndDisplaySnapshot()
         }
         
-        // Add some test action buttons programmatically for demo
-        // These would normally be in a separate debug UI, but we'll add them inline for simplicity
+        binding.executePromptButton.setOnClickListener {
+            executeNlpPrompt()
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
     
     private fun captureAndDisplaySnapshot() {
@@ -96,6 +106,62 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return null
+    }
+    
+    private fun executeNlpPrompt() {
+        val prompt = binding.nlpPromptEditText.text.toString().trim()
+        if (prompt.isEmpty()) {
+            Toast.makeText(this, "Please enter a prompt", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        // Show loading state
+        binding.executePromptButton.isEnabled = false
+        binding.promptResultTextView.visibility = View.VISIBLE
+        binding.promptResultTextView.text = getString(R.string.executing_prompt)
+        
+        // Execute on background thread
+        scope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    AssistantSdk.executePrompt(prompt)
+                }
+                
+                // Update UI on main thread
+                binding.executePromptButton.isEnabled = true
+                
+                if (result.success) {
+                    val message = getString(R.string.prompt_success, result.executedActions.size)
+                    binding.promptResultTextView.text = message
+                    binding.promptResultTextView.setTextColor(getResources().getColor(android.R.color.holo_green_dark, theme))
+                    
+                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+                    
+                    // Log detailed results
+                    android.util.Log.d("AssistantSDK", "Prompt execution successful: ${result.executedActions.size} actions")
+                    result.executedActions.forEachIndexed { index, actionResult ->
+                        android.util.Log.d("AssistantSDK", "Action $index: ${actionResult.code} - ${actionResult.message ?: "Success"}")
+                    }
+                } else {
+                    val errorMessage = result.error ?: "Unknown error"
+                    val message = getString(R.string.prompt_error, errorMessage)
+                    binding.promptResultTextView.text = message
+                    binding.promptResultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_dark, theme))
+                    
+                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                    android.util.Log.e("AssistantSDK", "Prompt execution failed: $errorMessage")
+                }
+            } catch (e: Exception) {
+                binding.executePromptButton.isEnabled = true
+                val errorMessage = e.message ?: "Unknown error"
+                val message = getString(R.string.prompt_error, errorMessage)
+                binding.promptResultTextView.text = message
+                binding.promptResultTextView.setTextColor(getResources().getColor(android.R.color.holo_red_dark, theme))
+                
+                Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+                android.util.Log.e("AssistantSDK", "Prompt execution error", e)
+            }
+        }
     }
 }
 

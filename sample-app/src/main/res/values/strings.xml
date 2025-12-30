@@ -12,5 +12,10 @@
     <string name="action_focus">Focus EditText</string>
     <string name="action_back">Back</string>
     <string name="action_scroll">Scroll</string>
+    <string name="nlp_prompt_hint">Enter a natural language command (e.g., &quot;Click the button&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Prompt</string>
+    <string name="executing_prompt">Executing prompt...</string>
+    <string name="prompt_success">Successfully executed %d action(s)</string>
+    <string name="prompt_error">Error: %1$s</string>
 </resources>
 

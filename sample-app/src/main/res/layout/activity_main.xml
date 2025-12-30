@@ -59,15 +59,75 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/passwordEditText" />
 
+    <TextView
+        android:id="@+id/nlpSectionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Natural Language Commands"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sampleRecyclerView" />
+
+    <EditText
+        android:id="@+id/nlpPromptEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/nlp_prompt_hint"
+        android:layout_marginTop="8dp"
+        android:inputType="textCapSentences|textMultiLine"
+        android:minLines="2"
+        android:maxLines="4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nlpSectionTitle" />
+
+    <Button
+        android:id="@+id/executePromptButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/execute_prompt_button"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nlpPromptEditText" />
+
+    <TextView
+        android:id="@+id/promptResultTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="12sp"
+        android:padding="8dp"
+        android:background="?attr/colorControlHighlight"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/executePromptButton" />
+
+    <TextView
+        android:id="@+id/snapshotSectionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="UI Snapshot"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/promptResultTextView" />
+
     <Button
         android:id="@+id/captureButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/capture_button"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sampleRecyclerView" />
+        app:layout_constraintTop_toBottomOf="@id/snapshotSectionTitle" />
 
     <ScrollView
         android:id="@+id/snapshotScrollView"
