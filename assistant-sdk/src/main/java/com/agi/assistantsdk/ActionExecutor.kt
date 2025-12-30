@@ -5,8 +5,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.EditText
-import android.widget.NestedScrollView
+import androidx.core.widget.NestedScrollView
 import android.widget.ScrollView
+import androidx.activity.ComponentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.agi.assistantsdk.models.Action
 import com.agi.assistantsdk.models.ActionCode
@@ -35,7 +37,12 @@ internal class ActionExecutor(
     private fun executeBack(activity: Activity): ActionResult {
         return try {
             mainHandler.post {
-                activity.onBackPressedDispatcher.onBackPressed()
+                if (activity is ComponentActivity) {
+                    activity.onBackPressedDispatcher.onBackPressed()
+                } else {
+                    @Suppress("DEPRECATION")
+                    activity.onBackPressed()
+                }
             }
             ActionResult.success()
         } catch (e: Exception) {
@@ -82,13 +89,8 @@ internal class ActionExecutor(
         
         return validateAndExecute(view) {
             mainHandler.post {
-                when (view) {
-                    is EditText -> {
-                        view.setText(text)
-                        view.setSelection(text.length)
-                    }
-                    else -> throw IllegalArgumentException("View does not support setText")
-                }
+                view.setText(text)
+                view.setSelection(text.length)
             }
             ActionResult.success()
         }
@@ -134,9 +136,9 @@ internal class ActionExecutor(
                     is RecyclerView -> {
                         val layoutManager = view.layoutManager
                         val adapter = view.adapter
-                        if (layoutManager != null && adapter != null) {
+                        if (layoutManager is LinearLayoutManager && adapter != null) {
                             val currentPosition = when {
-                                layoutManager.canScrollVertically(1) -> {
+                                layoutManager.canScrollVertically() -> {
                                     val firstVisible = layoutManager.findFirstVisibleItemPosition()
                                     when (direction) {
                                         ScrollDirection.DOWN -> (firstVisible + 1).coerceAtMost(adapter.itemCount - 1)
@@ -144,7 +146,7 @@ internal class ActionExecutor(
                                         else -> firstVisible
                                     }
                                 }
-                                layoutManager.canScrollHorizontally(1) -> {
+                                layoutManager.canScrollHorizontally() -> {
                                     val firstVisible = layoutManager.findFirstVisibleItemPosition()
                                     when (direction) {
                                         ScrollDirection.RIGHT -> (firstVisible + 1).coerceAtMost(adapter.itemCount - 1)
@@ -196,4 +198,3 @@ internal class ActionExecutor(
         }
     }
 }
-

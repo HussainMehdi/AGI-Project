@@ -8,9 +8,8 @@ import android.widget.Checkable
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.NestedScrollView
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
-import com.agi.assistantsdk.models.NodeState
 import com.agi.assistantsdk.models.ScreenInfo
 import com.agi.assistantsdk.models.SupportedAction
 import com.agi.assistantsdk.models.UiNode
@@ -156,11 +155,11 @@ internal class NodeIdGenerator {
         // Try to use resource ID name first (most stable)
         val resourceIdName = try {
             view.resources?.getResourceEntryName(view.id)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
         
-        if (!resourceIdName.isNullOrBlank() && view.id != android.view.View.NO_ID) {
+        if (!resourceIdName.isNullOrBlank() && view.id != View.NO_ID) {
             return resourceIdName
         }
         
@@ -188,4 +187,3 @@ internal class NodeIdGenerator {
         return 0
     }
 }
-
