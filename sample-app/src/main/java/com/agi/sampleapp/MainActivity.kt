@@ -70,11 +70,11 @@ class MainActivity : AppCompatActivity() {
         val buttonNode = findNodeById(snapshot.nodes, "sampleButton")
         if (buttonNode != null) {
             val result = AssistantSdk.perform(Action.Click(buttonNode.id))
-            Toast.makeText(
-                this,
-                "Click action result: ${result.success} - ${result.message ?: result.code}",
-                Toast.LENGTH_SHORT
-            ).show()
+//            Toast.makeText(
+//                this,
+//                "Click action result: ${result.success} - ${result.message ?: result.code}",
+//                Toast.LENGTH_SHORT
+//            ).show()
         }
         
         // Try to set text on EditText

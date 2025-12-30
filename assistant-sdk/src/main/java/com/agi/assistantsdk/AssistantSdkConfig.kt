@@ -32,7 +32,23 @@ data class AssistantSdkConfig(
     /**
      * Whether to auto-detect password fields (enabled by default).
      */
-    val autoDetectPasswordFields: Boolean = true
+    val autoDetectPasswordFields: Boolean = true,
+    
+    /**
+     * Ollama server URL (default: http://10.0.2.2:11434 for Android emulator,
+     * use your host machine's IP for physical device).
+     */
+    val ollamaBaseUrl: String = "http://10.0.2.2:11434",
+    
+    /**
+     * Ollama model name to use (default: llama3.2).
+     */
+    val ollamaModel: String = "llama3.2",
+    
+    /**
+     * Timeout for LLM requests in seconds (default: 60).
+     */
+    val llmTimeoutSeconds: Int = 60
 ) {
     companion object {
         fun default() = AssistantSdkConfig()

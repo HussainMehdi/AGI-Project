@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import com.agi.assistantsdk.models.Action
 import com.agi.assistantsdk.models.ActionResult
+import com.agi.assistantsdk.models.PromptResult
 import com.agi.assistantsdk.models.UiSnapshot
 
 /**
@@ -18,6 +19,9 @@ object AssistantSdk {
     private var currentActivity: Activity? = null
     private var captureEngine: ViewCaptureEngine? = null
     private var actionExecutor: ActionExecutor? = null
+    private var ollamaClient: OllamaClient? = null
+    private var promptBuilder: PromptBuilder? = null
+    private var commandParser: LLMCommandParser? = null
     
     /**
      * Initialize the SDK with the application and configuration.
@@ -31,6 +35,9 @@ object AssistantSdk {
         val idGenerator = NodeIdGenerator()
         this.captureEngine = ViewCaptureEngine(config, idGenerator)
         this.actionExecutor = ActionExecutor(captureEngine!!)
+        this.ollamaClient = OllamaClient(config)
+        this.promptBuilder = PromptBuilder()
+        this.commandParser = LLMCommandParser()
         
         // Register activity lifecycle callback to track current activity
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
@@ -103,6 +110,110 @@ object AssistantSdk {
         )
         
         return executor.execute(activity, action)
+    }
+    
+    /**
+     * Execute a natural language prompt.
+     * This will:
+     * 1. Capture the current UI state
+     * 2. Send the prompt and UI state to the LLM (Ollama)
+     * 3. Parse the LLM response into commands
+     * 4. Execute the commands
+     * 
+     * Note: This is a blocking call. Consider running it on a background thread.
+     * 
+     * @param userPrompt The natural language request from the user
+     * @return PromptResult containing the results of executed actions
+     */
+    fun executePrompt(userPrompt: String): PromptResult {
+        checkInitialized()
+        val activity = currentActivity ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "No activity bound"
+        )
+        
+        val engine = captureEngine ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "SDK not properly initialized"
+        )
+        
+        val client = ollamaClient ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "LLM client not initialized"
+        )
+        
+        val builder = promptBuilder ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "Prompt builder not initialized"
+        )
+        
+        val parser = commandParser ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "Command parser not initialized"
+        )
+        
+        val executor = actionExecutor ?: return PromptResult(
+            success = false,
+            executedActions = emptyList(),
+            error = "Action executor not initialized"
+        )
+        
+        return try {
+            // Step 1: Capture UI state
+            val snapshot = engine.capture(activity)
+            
+            // Step 2: Build prompt
+            val prompt = builder.buildPrompt(userPrompt, snapshot)
+            
+            // Step 3: Send to LLM
+            val llmResult = client.sendPrompt(prompt)
+            if (llmResult.isFailure) {
+                return PromptResult(
+                    success = false,
+                    executedActions = emptyList(),
+                    error = "LLM request failed: ${llmResult.exceptionOrNull()?.message}"
+                )
+            }
+            
+            val llmResponse = llmResult.getOrNull() ?: return PromptResult(
+                success = false,
+                executedActions = emptyList(),
+                error = "Empty LLM response"
+            )
+            
+            // Step 4: Parse commands
+            val actions = parser.parseCommands(llmResponse.commands)
+            if (actions.isEmpty()) {
+                return PromptResult(
+                    success = false,
+                    executedActions = emptyList(),
+                    error = "No valid commands found in LLM response"
+                )
+            }
+            
+            // Step 5: Execute actions
+            val results = actions.map { action ->
+                executor.execute(activity, action)
+            }
+            
+            val allSuccessful = results.all { it.success }
+            PromptResult(
+                success = allSuccessful,
+                executedActions = results,
+                error = if (allSuccessful) null else "Some actions failed"
+            )
+        } catch (e: Exception) {
+            PromptResult(
+                success = false,
+                executedActions = emptyList(),
+                error = "Error executing prompt: ${e.message}"
+            )
+        }
     }
     
     private fun checkInitialized() {

@@ -90,6 +90,33 @@ val result = AssistantSdk.perform(Action.Scroll("recyclerViewId", ScrollDirectio
 val result = AssistantSdk.perform(Action.Back)
 ```
 
+### 6. Execute Natural Language Prompts (LLM Integration)
+
+```kotlin
+// Execute a natural language command
+// Note: This is a blocking call, consider running on a background thread
+val result = AssistantSdk.executePrompt("Click the submit button")
+
+if (result.success) {
+    println("Executed ${result.executedActions.size} actions successfully")
+} else {
+    println("Error: ${result.error}")
+}
+```
+
+**Note**: Natural language prompts require an Ollama instance running on your host machine. Configure the Ollama URL in the config:
+
+```kotlin
+val config = AssistantSdkConfig(
+    ollamaBaseUrl = "http://10.0.2.2:11434", // Android emulator (default)
+    // For physical device, use your host machine's IP:
+    // ollamaBaseUrl = "http://192.168.1.100:11434",
+    ollamaModel = "llama3.2" // or your preferred model
+)
+
+AssistantSdk.init(app, config)
+```
+
 ## API Reference
 
 ### AssistantSdk
@@ -111,6 +138,18 @@ Capture the current UI state and return a snapshot containing all visible UI nod
 #### `perform(action: Action): ActionResult`
 
 Perform an action on a UI node. Returns an `ActionResult` indicating success or failure.
+
+#### `executePrompt(userPrompt: String): PromptResult`
+
+Execute a natural language prompt. This will:
+1. Capture the current UI state
+2. Send the prompt and UI state to the LLM (Ollama)
+3. Parse the LLM response into commands
+4. Execute the commands
+
+Returns a `PromptResult` containing the results of all executed actions.
+
+**Note**: This is a blocking call. Consider running it on a background thread or using coroutines.
 
 ### Data Models
 
@@ -164,6 +203,18 @@ data class ActionResult(
     val success: Boolean,
     val code: ActionCode,    // SUCCESS, NODE_NOT_FOUND, etc.
     val message: String?     // Optional error message
+)
+```
+
+#### PromptResult
+
+Result of executing a natural language prompt:
+
+```kotlin
+data class PromptResult(
+    val success: Boolean,                    // Whether all actions succeeded
+    val executedActions: List<ActionResult>, // Results of each executed action
+    val error: String?                       // Error message if any
 )
 ```
 
@@ -294,6 +345,86 @@ AssistantSdk.registerActionHandler("myButton") {
   "timestamp": 1234567890
 }
 ```
+
+## Natural Language / LLM Integration
+
+The SDK supports natural language prompts using Ollama running on your host machine.
+
+### Setup Ollama
+
+1. **Install Ollama** on your host machine: https://ollama.ai/
+2. **Start Ollama** (usually runs on port 11434)
+3. **Pull a model** (if not already done):
+   ```bash
+   ollama pull llama3.2
+   ```
+
+### Configuration
+
+Configure the Ollama connection in your SDK config:
+
+```kotlin
+val config = AssistantSdkConfig(
+    // For Android emulator (default):
+    ollamaBaseUrl = "http://10.0.2.2:11434",
+    
+    // For physical device, use your host machine's IP:
+    // ollamaBaseUrl = "http://192.168.1.100:11434",
+    
+    ollamaModel = "llama3.2", // or your preferred model
+    llmTimeoutSeconds = 60
+)
+
+AssistantSdk.init(app, config)
+```
+
+### Usage
+
+```kotlin
+// Execute a natural language command
+// Note: This is a blocking call - run on a background thread
+Thread {
+    val result = AssistantSdk.executePrompt("Click the submit button")
+    
+    runOnUiThread {
+        if (result.success) {
+            println("Executed ${result.executedActions.size} actions")
+        } else {
+            println("Error: ${result.error}")
+        }
+    }
+}.start()
+```
+
+### How It Works
+
+1. **Capture**: The SDK captures the current UI state
+2. **Prompt Building**: Creates a detailed prompt with UI snapshot and user request
+3. **LLM Request**: Sends to Ollama API with format="json" to get structured commands
+4. **Parsing**: Parses JSON response into Action objects
+5. **Execution**: Executes all commands sequentially
+
+### LLM Response Format
+
+The LLM should return JSON in this format:
+
+```json
+{
+  "commands": [
+    {
+      "action": "click",
+      "nodeId": "submitButton"
+    },
+    {
+      "action": "setText",
+      "nodeId": "usernameField",
+      "text": "john.doe"
+    }
+  ]
+}
+```
+
+Supported actions: `click`, `longClick`, `setText`, `focus`, `scroll`, `back`
 
 ## Running the Sample App
 
