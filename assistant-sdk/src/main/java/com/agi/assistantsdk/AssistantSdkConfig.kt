@@ -48,7 +48,22 @@ data class AssistantSdkConfig(
     /**
      * Timeout for LLM requests in seconds (default: 60).
      */
-    val llmTimeoutSeconds: Int = 60
+    val llmTimeoutSeconds: Int = 60,
+    
+    /**
+     * RAG service base URL (optional). If set, the SDK will use RAG service
+     * instead of direct Ollama calls. This reduces token usage by retrieving
+     * only relevant UI components.
+     * Example: "http://10.0.2.2:8000" for Android emulator,
+     * or "http://192.168.1.100:8000" for physical device.
+     */
+    val ragServiceBaseUrl: String? = null,
+    
+    /**
+     * Session ID for RAG service (optional). Used to group UI snapshots
+     * and queries together. If null, a default session is used.
+     */
+    val ragSessionId: String? = null
 ) {
     companion object {
         fun default() = AssistantSdkConfig()

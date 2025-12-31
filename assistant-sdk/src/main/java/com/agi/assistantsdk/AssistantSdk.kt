@@ -20,6 +20,7 @@ object AssistantSdk {
     private var captureEngine: ViewCaptureEngine? = null
     private var actionExecutor: ActionExecutor? = null
     private var ollamaClient: OllamaClient? = null
+    private var ragClient: RagClient? = null
     private var promptBuilder: PromptBuilder? = null
     private var commandParser: LLMCommandParser? = null
     private var tokenMinimizer: TokenMinimizer? = null
@@ -36,7 +37,14 @@ object AssistantSdk {
         val idGenerator = NodeIdGenerator()
         this.captureEngine = ViewCaptureEngine(config, idGenerator)
         this.actionExecutor = ActionExecutor(captureEngine!!)
-        this.ollamaClient = OllamaClient(config)
+        
+        // Use RAG service if configured, otherwise use direct Ollama
+        if (config.ragServiceBaseUrl != null) {
+            this.ragClient = RagClient(config)
+        } else {
+            this.ollamaClient = OllamaClient(config)
+        }
+        
         this.promptBuilder = PromptBuilder()
         this.commandParser = LLMCommandParser()
         this.tokenMinimizer = TokenMinimizer()
@@ -169,32 +177,71 @@ object AssistantSdk {
             // Step 1: Capture UI state
             val snapshot = engine.capture(activity)
             
-            // Step 1.5: Minimize snapshot to reduce token usage
-            val minimizer = tokenMinimizer ?: return PromptResult(
-                success = false,
-                executedActions = emptyList(),
-                error = "Token minimizer not initialized"
-            )
-            val minimizedSnapshot = minimizer.minimize(snapshot)
+            val llmResponse: LLMResponse
             
-            // Step 2: Build prompt with minimized snapshot
-            val prompt = builder.buildPrompt(userPrompt, minimizedSnapshot)
-            
-            // Step 3: Send to LLM
-            val llmResult = client.sendPrompt(prompt)
-            if (llmResult.isFailure) {
-                return PromptResult(
+            // Check if using RAG service
+            val ragClient = this.ragClient
+            if (ragClient != null) {
+                // Use RAG service: ingest snapshot and query
+                val ingestResult = ragClient.ingestSnapshot(snapshot, config.ragSessionId)
+                if (ingestResult.isFailure) {
+                    return PromptResult(
+                        success = false,
+                        executedActions = emptyList(),
+                        error = "Failed to ingest UI snapshot to RAG service: ${ingestResult.exceptionOrNull()?.message}"
+                    )
+                }
+                
+                // Query RAG service
+                val queryResult = ragClient.query(userPrompt, config.ragSessionId)
+                if (queryResult.isFailure) {
+                    return PromptResult(
+                        success = false,
+                        executedActions = emptyList(),
+                        error = "RAG service query failed: ${queryResult.exceptionOrNull()?.message}"
+                    )
+                }
+                
+                llmResponse = queryResult.getOrNull() ?: return PromptResult(
                     success = false,
                     executedActions = emptyList(),
-                    error = "LLM request failed: ${llmResult.exceptionOrNull()?.message}"
+                    error = "Empty RAG service response"
+                )
+            } else {
+                // Use direct Ollama: minimize snapshot and build prompt
+                val client = ollamaClient ?: return PromptResult(
+                    success = false,
+                    executedActions = emptyList(),
+                    error = "LLM client not initialized"
+                )
+                
+                // Step 1.5: Minimize snapshot to reduce token usage
+                val minimizer = tokenMinimizer ?: return PromptResult(
+                    success = false,
+                    executedActions = emptyList(),
+                    error = "Token minimizer not initialized"
+                )
+                val minimizedSnapshot = minimizer.minimize(snapshot)
+                
+                // Step 2: Build prompt with minimized snapshot
+                val prompt = builder.buildPrompt(userPrompt, minimizedSnapshot)
+                
+                // Step 3: Send to LLM
+                val llmResult = client.sendPrompt(prompt)
+                if (llmResult.isFailure) {
+                    return PromptResult(
+                        success = false,
+                        executedActions = emptyList(),
+                        error = "LLM request failed: ${llmResult.exceptionOrNull()?.message}"
+                    )
+                }
+                
+                llmResponse = llmResult.getOrNull() ?: return PromptResult(
+                    success = false,
+                    executedActions = emptyList(),
+                    error = "Empty LLM response"
                 )
             }
-            
-            val llmResponse = llmResult.getOrNull() ?: return PromptResult(
-                success = false,
-                executedActions = emptyList(),
-                error = "Empty LLM response"
-            )
             
             // Step 4: Parse commands
             val actions = parser.parseCommands(llmResponse.commands)
