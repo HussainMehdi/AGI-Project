@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Calendar</string>
+    <string name="create_event">Create Event</string>
+    <string name="event_title">Event Title</string>
+    <string name="description">Description</string>
+    <string name="location">Location</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="duration">Duration (minutes)</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="no_events">No events scheduled</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;Create meeting at 3pm tomorrow&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+

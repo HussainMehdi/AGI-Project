@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Food Delivery</string>
+    <string name="search_hint">Search restaurants...</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="cart">Cart</string>
+    <string name="order_now">Order Now</string>
+    <string name="delivery_time">Delivery Time</string>
+    <string name="delivery_fee">Delivery Fee</string>
+    <string name="cuisine">Cuisine</string>
+    <string name="menu">Menu</string>
+    <string name="description">Description</string>
+    <string name="checkout">Checkout</string>
+    <string name="total">Total</string>
+    <string name="remove">Remove</string>
+    <string name="minutes">%d min</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;Order pizza from Domino\'s&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+

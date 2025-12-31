@@ -57,7 +57,7 @@ data class AssistantSdkConfig(
      * Example: "http://10.0.2.2:8000" for Android emulator,
      * or "http://192.168.1.100:8000" for physical device.
      */
-    val ragServiceBaseUrl: String? = null,
+    val ragServiceBaseUrl: String? = null,//"http://10.0.2.2:8000",
     
     /**
      * Session ID for RAG service (optional). Used to group UI snapshots

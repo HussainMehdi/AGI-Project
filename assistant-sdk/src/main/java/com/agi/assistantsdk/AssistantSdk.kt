@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import com.agi.assistantsdk.models.Action
 import com.agi.assistantsdk.models.ActionResult
+import com.agi.assistantsdk.models.LLMResponse
 import com.agi.assistantsdk.models.PromptResult
 import com.agi.assistantsdk.models.UiSnapshot
 
@@ -41,6 +42,7 @@ object AssistantSdk {
         // Use RAG service if configured, otherwise use direct Ollama
         if (config.ragServiceBaseUrl != null) {
             this.ragClient = RagClient(config)
+            this.ollamaClient = OllamaClient(config)
         } else {
             this.ollamaClient = OllamaClient(config)
         }

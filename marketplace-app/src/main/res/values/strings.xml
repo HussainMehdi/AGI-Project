@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Marketplace</string>
+    <string name="search_hint">Search apps...</string>
+    <string name="install">Install</string>
+    <string name="installed">Installed</string>
+    <string name="developer">Developer</string>
+    <string name="category">Category</string>
+    <string name="rating">Rating</string>
+    <string name="downloads">Downloads</string>
+    <string name="size">Size</string>
+    <string name="description">Description</string>
+    <string name="price">Price</string>
+    <string name="free">Free</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;Install WhatsApp&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+

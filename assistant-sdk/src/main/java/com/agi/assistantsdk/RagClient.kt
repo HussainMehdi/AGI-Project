@@ -158,7 +158,7 @@ internal class RagClient(private val config: AssistantSdkConfig) {
         }
     }
     
-    private data class IngestResponse(
+    data class IngestResponse(
         val status: String,
         val session_id: String?,
         val nodes_processed: Int,

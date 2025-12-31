@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">LMS</string>
+    <string name="course">Course</string>
+    <string name="assignments">Assignments</string>
+    <string name="students">Students</string>
+    <string name="instructor">Instructor</string>
+    <string name="description">Description</string>
+    <string name="due_date">Due Date</string>
+    <string name="status">Status</string>
+    <string name="submit">Submit</string>
+    <string name="view_assignments">View Assignments</string>
+    <string name="join_course">Join Course</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;View assignments&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+

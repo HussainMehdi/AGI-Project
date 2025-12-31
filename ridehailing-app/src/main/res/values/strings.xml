@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Ride Hailing</string>
+    <string name="search_hint">Search drivers...</string>
+    <string name="book_ride">Book Ride</string>
+    <string name="trip_history">Trip History</string>
+    <string name="car_type">Car Type</string>
+    <string name="rating">Rating</string>
+    <string name="estimated_arrival">Est. Arrival</string>
+    <string name="pickup_location">Pickup Location</string>
+    <string name="dropoff_location">Dropoff Location</string>
+    <string name="confirm_booking">Confirm Booking</string>
+    <string name="fare">Fare</string>
+    <string name="date">Date</string>
+    <string name="status">Status</string>
+    <string name="minutes">%d min</string>
+    <string name="nlp_prompt_hint">Enter command (e.g., &quot;Book a ride to airport&quot;)</string>
+    <string name="execute_prompt_button">Execute NLP Command</string>
+    <string name="executing_prompt">Executing...</string>
+    <string name="prompt_success">Success: %d actions executed</string>
+    <string name="prompt_error">Error: %1$s</string>
+</resources>
+
