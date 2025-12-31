@@ -22,6 +22,7 @@ object AssistantSdk {
     private var ollamaClient: OllamaClient? = null
     private var promptBuilder: PromptBuilder? = null
     private var commandParser: LLMCommandParser? = null
+    private var tokenMinimizer: TokenMinimizer? = null
     
     /**
      * Initialize the SDK with the application and configuration.
@@ -38,6 +39,7 @@ object AssistantSdk {
         this.ollamaClient = OllamaClient(config)
         this.promptBuilder = PromptBuilder()
         this.commandParser = LLMCommandParser()
+        this.tokenMinimizer = TokenMinimizer()
         
         // Register activity lifecycle callback to track current activity
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
@@ -167,8 +169,16 @@ object AssistantSdk {
             // Step 1: Capture UI state
             val snapshot = engine.capture(activity)
             
-            // Step 2: Build prompt
-            val prompt = builder.buildPrompt(userPrompt, snapshot)
+            // Step 1.5: Minimize snapshot to reduce token usage
+            val minimizer = tokenMinimizer ?: return PromptResult(
+                success = false,
+                executedActions = emptyList(),
+                error = "Token minimizer not initialized"
+            )
+            val minimizedSnapshot = minimizer.minimize(snapshot)
+            
+            // Step 2: Build prompt with minimized snapshot
+            val prompt = builder.buildPrompt(userPrompt, minimizedSnapshot)
             
             // Step 3: Send to LLM
             val llmResult = client.sendPrompt(prompt)
